@@ -33,5 +33,5 @@ pip install cffi
 
 ## Usage
 ```
-pingo.exe -s "Claro net"
+ping0.exe -s "Claro net"
 ```
