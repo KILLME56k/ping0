@@ -28,13 +28,13 @@ class Ping0Utility:
             print("\r", end="")
 
     @staticmethod
-    def ping(host):
+    def ping(host, ipv = 4):
         op = platform.system()
         if op == 'Windows':
-            ping_result = os.popen(f'ping -n 1 -w 1000 {host}').read().strip().split("\n")[-1].strip()
+            ping_result = os.popen(f'ping -n 1 -w 1000 -{ipv} {host}').read().strip().split("\n")[-1].strip()
             ping_response = ping_result.split('=')[-1].split('ms')[0].strip() if '=' in ping_result else '99999999'
         elif op == 'Linux':
-            ping_result = os.popen(f'ping -qc1 {host} -W 0.5 2> /dev/null').read().strip().split("\n")[-1]
+            ping_result = os.popen(f'ping -qc1 -{ipv} {host} -W 0.5 2> /dev/null').read().strip().split("\n")[-1]
             ping_response = ping_result.split('/')[-2] if '/' in ping_result else '99999999'
         else:
             print('Não suportado')
@@ -58,7 +58,7 @@ class Ping0Utility:
         self.print_progress_bar(0, file_array_total, prefix='Progresso:', suffix='Completo', length=50)
         for i, line in enumerate(file_array):
             host, name = (line.split(' ', 1) + [''])[:2]
-            results.append([host, name, self.ping(host)])
+            results.append([host, name, self.ping(host, 4), self.ping(host, 6)])
             self.print_progress_bar(i + 1, file_array_total, prefix='Progresso:', suffix='Completo', length=50)
 
         return self.sort_fix(results, 2)
@@ -83,12 +83,19 @@ class Ping0Utility:
 
     def parse_ping(self, results, i, line):
         parsed_url = urllib.parse.urlparse(line['url'])
-        results[i] = [parsed_url.hostname, f"{line['sponsor']} ({line['id']})", f"{line['name']} - {line['cc']}", self.ping(parsed_url.hostname), line['lat'], line['lon']]
+        results[i] = [parsed_url.hostname, f"{line['sponsor']} ({line['id']})", f"{line['name']} - {line['cc']}", self.ping(parsed_url.hostname, 4), self.ping(parsed_url.hostname, 6), line['lat'], line['lon']]
 
     @staticmethod
     def sort_fix(arr, index):
         sorted_arr = sorted(arr, key=itemgetter(index))
+
         for item in sorted_arr:
+
+            if item[index+1] == 99999999:
+                item[index+1] = 'FALHOU'
+            else:
+                item[index+1] = f"{item[index+1]}ms"
+
             if item[index] == 99999999:
                 item[index] = 'FALHOU'
             else:
@@ -151,6 +158,8 @@ class Ping0App:
         group.add_argument("-f", "--file", help="Arquivo de hosts")
         group.add_argument("-s", "--speedtest", help="Palavra chave para busca dos servidores, utilize aspas para utilizar mais de uma palavra ex: \"Claro Net\"")
         parser.add_argument("-e", "--export", help="Exportar resultados")
+        # parser.add_argument("-4", "--export", help="Somente Ipv4")
+        # parser.add_argument("-6", "--export", help="Somente Ipv6")
 
         args = parser.parse_args()
 
@@ -165,7 +174,7 @@ class Ping0App:
             elif args.export == 'txt':
                 self.ping_utility.export_result(table, args.file)
         elif args.speedtest:
-            headers = ["Host/IP", "Servidor (ID)", "Local", "Ping", "Lat", "Lon"]
+            headers = ["Host/IP", "Servidor (ID)", "Local", "Ping4", "Ping6", "Lat", "Lon"]
             hosts = self.ping_utility.speedtest_read(args.speedtest)
             results = self.ping_utility.ping_response_speedtest(hosts)
             table = self.ping_utility.prepare_table(results, headers)
