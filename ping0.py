@@ -82,10 +82,11 @@ class Ping0Utility:
             p.start()
             processes.append(p)
 
-        for p in processes:
+        for i, p in enumerate(processes):
             p.join()
-
-        self.print_progress_bar(file_array_total, file_array_total, prefix='Progresso:', suffix='Completo', length=50)
+            
+            self.print_progress_bar((i + 1) * max_processes, file_array_total, prefix='Progresso:', suffix='Completo', length=50)
+        
         return self.sort_fix(results.values(), 3)
 
     def parse_ping(self, results, i, line):
