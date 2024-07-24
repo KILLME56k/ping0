@@ -127,7 +127,7 @@ class Ping0Utility:
 
     @staticmethod
     def print_table(table):
-        print(table)
+        print(table + '\r\n\r\n')
 
     @staticmethod
     def export_result(printed, prefix):
@@ -170,6 +170,8 @@ class Ping0App:
         # parser.add_argument("-6", "--export", help="Somente Ipv6")
 
         args = parser.parse_args()
+
+        print('\r\n')
 
         if args.file:
             headers = ["Host/IP", "Servidor", "Ping4", "Ping6"]
