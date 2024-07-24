@@ -63,7 +63,7 @@ class Ping0Utility:
 
         return self.sort_fix(results, 2)
 
-    def ping_response_speedtest(self, data_json):
+    def ping_response_speedtest(self, data_json, max_processes=10):
         file_array_total = len(data_json)
         if file_array_total == 0:
             sys.exit("Erro: Nenhum host encontrado com essa palavra")
@@ -72,13 +72,20 @@ class Ping0Utility:
         results = manager.dict()
         self.print_progress_bar(0, file_array_total, prefix='Progresso:', suffix='Completo', length=50)
 
-        processes = [multiprocessing.Process(target=self.parse_ping, args=(results, i, line)) for i, line in enumerate(data_json)]
-        for process in processes:
-            process.start()
-        for i, process in enumerate(processes):
-            process.join()
-            self.print_progress_bar(i + 1, file_array_total, prefix='Progresso:', suffix='Completo', length=50)
+        processes = []
+        for i, line in enumerate(data_json):
+            while len(processes) >= max_processes:
+                for p in processes:
+                    if not p.is_alive():
+                        processes.remove(p)
+            p = multiprocessing.Process(target=self.parse_ping, args=(results, i, line))
+            p.start()
+            processes.append(p)
 
+        for p in processes:
+            p.join()
+
+        self.print_progress_bar(file_array_total, file_array_total, prefix='Progresso:', suffix='Completo', length=50)
         return self.sort_fix(results.values(), 3)
 
     def parse_ping(self, results, i, line):
