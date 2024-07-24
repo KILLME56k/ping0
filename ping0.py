@@ -147,11 +147,11 @@ class Ping0Utility:
 
     @staticmethod
     def current_version():
-        return '1.0.0'
+        return '1.0.1'
 
     @staticmethod
     def get_version():
-        return f'Versão: {Ping0Utility.current_version()}'
+        print(f'Versão: {Ping0Utility.current_version()}')
 
 
 class Ping0App:
@@ -166,7 +166,7 @@ class Ping0App:
         group.add_argument("-f", "--file", help="Arquivo de hosts")
         group.add_argument("-s", "--speedtest", help="Palavra chave para busca dos servidores, utilize aspas para utilizar mais de uma palavra ex: \"Claro Net\"")
         parser.add_argument("-e", "--export", help="Exportar resultados")
-        # parser.add_argument("-4", "--export", help="Somente Ipv4")
+        parser.add_argument("-v", "--version", action='store_true', help="Somente Ipv4")
         # parser.add_argument("-6", "--export", help="Somente Ipv6")
 
         args = parser.parse_args()
@@ -191,7 +191,9 @@ class Ping0App:
                 self.ping_utility.export_result_csv(results, headers, args.speedtest)
             elif args.export == 'txt':
                 self.ping_utility.export_result(table, args.speedtest)
-
+        
+        if args.version:
+            return self.ping_utility.get_version()
 
 if __name__ == '__main__':
     Ping0App().run()
