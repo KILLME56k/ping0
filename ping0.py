@@ -147,7 +147,7 @@ class Ping0Utility:
 
     @staticmethod
     def current_version():
-        return '1.0.1'
+        return '1.0.2'
 
     @staticmethod
     def get_version():
@@ -172,7 +172,7 @@ class Ping0App:
         args = parser.parse_args()
 
         if args.file:
-            headers = ["Host/IP", "Servidor", "Ping"]
+            headers = ["Host/IP", "Servidor", "Ping4", "Ping6"]
             hosts = self.ping_utility.file_read(args.file)
             results = self.ping_utility.ping_response(hosts)
             table = self.ping_utility.prepare_table(results, headers)
