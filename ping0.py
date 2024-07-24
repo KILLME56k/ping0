@@ -85,7 +85,7 @@ class Ping0Utility:
         for i, p in enumerate(processes):
             p.join()
             
-            self.print_progress_bar((i + 1) * max_processes, file_array_total, prefix='Progresso:', suffix='Completo', length=50)
+            self.print_progress_bar(i + 1, file_array_total, prefix='Progresso:', suffix='Completo', length=50)
         
         return self.sort_fix(results.values(), 3)
 
