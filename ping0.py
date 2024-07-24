@@ -123,13 +123,13 @@ class Ping0Utility:
 
     @staticmethod
     def export_result(printed, prefix):
-        filename = Ping0Utility.get_filename(prefix) + '_resultado_ping0.txt'
+        filename = Ping0Utility.get_filename(prefix) + "_resultado_ping0.txt"
         with open(filename, 'w') as f:
             f.write(printed)
 
     @staticmethod
     def export_result_csv(ping_response, headers, prefix):
-        filename = Ping0Utility.get_filename(prefix) + '_resultado_ping0.csv'
+        filename = Ping0Utility.get_filename(prefix) + "_resultado_ping0.csv"
         np.savetxt(filename, [headers] + ping_response, delimiter="; ", fmt='%s')
 
     @staticmethod
