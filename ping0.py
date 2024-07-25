@@ -4,6 +4,7 @@ import platform
 import argparse
 import json
 import urllib.parse
+import urllib.request
 import requests
 import multiprocessing
 from operator import itemgetter
@@ -37,17 +38,32 @@ class Ping0Utility:
             ping_result = os.popen(f'ping -qc1 -{ipv} {host} -W 0.5 2> /dev/null').read().strip().split("\n")[-1]
             ping_response = ping_result.split('/')[-2] if '/' in ping_result else '99999999'
         else:
-            print('Não suportado')
+            print('Nao suportado')
             return None
         return int(float(ping_response))
 
     @staticmethod
-    def file_read(file):
-        if os.path.isfile(file):
-            with open(file, "r") as f:
-                return f.read().splitlines()
-        else:
-            sys.exit("Erro: Arquivo inválido")
+    def file_read(args):
+
+        if args.file:
+            if os.path.isfile(args.file):
+                with open(args.file, "r") as f:
+                    return f.read().splitlines()
+            else:
+                sys.exit("Erro: Arquivo Invalido")
+
+        if args.url:
+
+            if urllib.parse.urlparse(args.url):
+                
+                response = requests.get(args.url)
+
+                if response.ok:
+                    return response.text.splitlines()
+                else:
+                    sys.exit("Erro: URL Invalida")                
+            else:
+                sys.exit("Erro: URL Invalida")
 
     def ping_response(self, file_array):
         file_array_total = len(file_array)
@@ -136,14 +152,14 @@ class Ping0Utility:
             f.write(printed)
 
     @staticmethod
-    def export_result_csv(ping_response, headers, prefix):
-        filename = Ping0Utility.get_filename(prefix) + "_resultado_ping0.csv"
+    def export_result_csv(ping_response, headers, args):
+        filename = Ping0Utility.get_filename(args.file) + "_resultado_ping0.csv"
         np.savetxt(filename, [headers] + ping_response, delimiter="; ", fmt='%s')
 
     @staticmethod
-    def get_filename(prefix):
+    def get_filename(args):
         now = datetime.now()
-        return now.strftime(f"%Y-%m-%d_%H-%M-%S_[{slugify(prefix, separator='-')}]")
+        return now.strftime(f"%Y-%m-%d_%H-%M-%S_[{slugify(args.file, separator='-')}]")
 
     @staticmethod
     def current_version():
@@ -164,6 +180,7 @@ class Ping0App:
         parser = argparse.ArgumentParser(description="Ping para hosts via arquivos ou Speedtest")
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-f", "--file", help="Arquivo de hosts")
+        group.add_argument("-u", "--url", help="Arquivo de hosts")
         group.add_argument("-s", "--speedtest", help="Palavra chave para busca dos servidores, utilize aspas para utilizar mais de uma palavra ex: \"Claro Net\"")
         parser.add_argument("-e", "--export", help="Exportar resultados")
         parser.add_argument("-v", "--version", action='store_true', help="Somente Ipv4")
@@ -173,16 +190,16 @@ class Ping0App:
 
         print('\r\n')
 
-        if args.file:
+        if args.file or args.url:
             headers = ["Host/IP", "Servidor", "Ping4", "Ping6"]
-            hosts = self.ping_utility.file_read(args.file)
+            hosts = self.ping_utility.file_read(args)
             results = self.ping_utility.ping_response(hosts)
             table = self.ping_utility.prepare_table(results, headers)
             self.ping_utility.print_table(table)
             if args.export == 'csv':
-                self.ping_utility.export_result_csv(results, headers, args.file)
+                self.ping_utility.export_result_csv(results, headers, args)
             elif args.export == 'txt':
-                self.ping_utility.export_result(table, args.file)
+                self.ping_utility.export_result(table, args)
         elif args.speedtest:
             headers = ["Host/IP", "Servidor (ID)", "Local", "Ping4", "Ping6", "Lat", "Lon"]
             hosts = self.ping_utility.speedtest_read(args.speedtest)
