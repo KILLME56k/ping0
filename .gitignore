@@ -2,3 +2,4 @@ dist/
 build/
 *_resultado_ping0.*
 ping0.spec
+*.txt
