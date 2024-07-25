@@ -163,7 +163,7 @@ class Ping0Utility:
 
     @staticmethod
     def current_version():
-        return '1.0.2'
+        return '1.2.0'
 
     @staticmethod
     def get_version():
