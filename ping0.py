@@ -2,7 +2,6 @@ import os
 import sys
 import platform
 import argparse
-import json
 import urllib.parse
 import urllib.request
 import requests

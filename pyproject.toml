@@ -1,0 +1,14 @@
+[project]
+name = "Ping0"
+version = "1.2"
+description = "Ping0!"
+
+[tool.cxfreeze]
+executables = [
+    {script = "ping0.py", icon = "icon.ico", base = "console"}
+]
+
+[tool.cxfreeze.build_exe]
+build_exe = "build/ping0"
+excludes = ["unittest"]
+zip_include_packages = []
