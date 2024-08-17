@@ -7,20 +7,20 @@ sudo apt install python3-pip
 pip install pyinstaller
 pip install requests
 pip install tabulate
-pip install slugify
 pip install numpy
+pip install slugify
+
 ```
 
 ## Requirements Windows
 
 ```
 winget install -e --id Python.Python.3.12
-pip install pyinstaller
+pip install --upgrade cx_Freeze
 pip install requests
 pip install tabulate
-pip install slugify
 pip install numpy
-pip install cffi
+pip install slugify
 ```
 
 ## Building Linux
@@ -29,7 +29,7 @@ pip install cffi
 
 ## Building Windows
 
-    pyinstaller.exe --onefile -F -i "icon.ico" ping0.py
+    cxfreeze.exe build
 
 ## Usage with Speed Test servers
 ```
